@@ -17,14 +17,81 @@ Goals for R Learning Group
 
 Outline for today's session
 ========================================================
-
+- Important notes
 - Review
   + Working directories
+  + Data types **(+ vectors and lists)**
   + Installing and loading packages
   + Importing data into RStudio
 - Understanding your data
+  + Useful overview functions 
+  + Selecting columns with the "$" operator
 - Subsetting
+  + Useful analysis functions
+  + Missing values
+- Dplyr?
 
+Important notes (1/2)
+========================================================
+### R has a weird-looking "assignment operator": <-
+
+```r
+x <- 1
+x
+```
+
+```
+[1] 1
+```
+
+```r
+x = 2
+x
+```
+
+```
+[1] 2
+```
+- While the "=" symbol works, please use "<-"
+ + Short-cut for Mac (two keys): "alt/option" + "-"
+ 
+### To test equality, or select a variable, use "=="
+
+```r
+1 == 2
+1 == 1
+```
+Important notes (2/2)
+========================================================
+### Commenting
+- Use the # sign for commenting
+- Commenting is text or code that you do NOT want R to run
+
+```r
+# This will not print
+# print("hello world")
+```
+
+```r
+# This will print
+print("hello world")
+```
+
+```
+[1] "hello world"
+```
+- Make sure to comment you code so you can understand it later
+
+### Tab completion
+- When typing, hit "Tab" and RStudio will suggest completed commands for you
+
+### The RStudio console is not responding. What do I do?
+- Hit the "Esc" key 
+
+```r
+# Example of getting stuck
+print("hello world"
+```
 Working directories (1/2)
 ========================================================
 ### "We all need a place to call home"
@@ -60,7 +127,8 @@ list.files()
 ```
 
 ```
-[1] "police_killings.csv" "r-basics-figure"     "r-basics.Rpres"     
+[1] "police_killings.csv" "r-basics-figure"     "r-basics.pdf"       
+[4] "r-basics.Rpres"     
 ```
 - Side note: dir() command does the same thing
 
@@ -69,11 +137,15 @@ dir()
 ```
 
 ```
-[1] "police_killings.csv" "r-basics-figure"     "r-basics.Rpres"     
+[1] "police_killings.csv" "r-basics-figure"     "r-basics.pdf"       
+[4] "r-basics.Rpres"     
 ```
-Important notes (1/2)
+Review of data types
 ========================================================
-### R has a weird-looking "assignment operator"
+- Four most common "atomic" data types: 
+- Note: use the typeof() function to find the data type
+
+1.) Numerics (real numbers)
 
 ```r
 x <- 1
@@ -83,49 +155,71 @@ x
 ```
 [1] 1
 ```
+2.) Integers
 
 ```r
-x = 2
-x
+y <- 1L
+y
 ```
 
 ```
-[1] 2
+[1] 1
 ```
-### While the "=" symbol works, please use "<-"
- - Short-cut for Mac (two keys): "alt/option" + "-"
-Important notes (2/2)
+***
+3.) Characters (strings)
+
+```r
+a <- 'hello'
+a
+```
+
+```
+[1] "hello"
+```
+
+```r
+# Don't forget the quotes!
+```
+4.) Logicals (booleans)
+
+```r
+b <- FALSE # Or you can just capitalize the first letter: T or F
+b
+```
+
+```
+[1] FALSE
+```
+Vectors and Lists
 ========================================================
-### Commenting
-- Use the # sign for commenting
-- Commenting is text or code that you do NOT want R to run
+- Vectors and lists are collections of data, but they differ
+- Vecotrs are homogeneous (all of the same data type)
+  + To make a vector, use the c() function
 
 ```r
-# This will not print
-# print("hello world")
+num_vector <- c(1, 2, 3)
+num_vector
+```
+
+```
+[1] 1 2 3
 ```
 
 ```r
-# This will print
-print("hello world")
+char_vector <- c("a", "b", "c")
+char_vector
 ```
 
 ```
-[1] "hello world"
+[1] "a" "b" "c"
 ```
-- Make sure to comment you code so you can understand it later
-
-### Tab completion
-- When typing, hit "Tab" and RStudio will suggest completed commands for you
-
-### The RStudio console is not responding. What do I do?
-- Hit the "Esc" key 
+- Lists are hetergenous (can contain different data types)
+  + To make a list, use the list() function
 
 ```r
-# Example of getting stuck
-print("hello world"
+ex_list <- list(1, "a", TRUE)
+ex_list
 ```
-
 Installing and Loading Packages
 ========================================================
 - Let's load the following package: readr
@@ -136,14 +230,13 @@ Installing and Loading Packages
 install.packages("readr")
 ```
 - To load an R package: 
-  + Use require() or library() command **with the bare, unquoted package name**
+  + Use require() or library() command **don't need to put the package name in quotes, but you can**
 
 ```r
 require("readr")
 # or
 library("readr")
 ```
-  
 Police killings data
 ========================================================
 #### Police killings data set
@@ -155,7 +248,7 @@ Police killings data
 ```r
 police_killings <- read_csv("police_killings.csv")
 ```
-
+### Lots of other great functions in readr package
 Functions for understanding your data (1/2)
 ========================================================
 
@@ -263,12 +356,25 @@ head(sort(police_killings$county_income, decreasing=T))
 ```r
 unique(police_killings$lawenforcementagency)
 ```
-Subsetting data (1/2)
+Subsetting data (1/3)
 ========================================================
 ### What is subsetting?
 - When you want to see specific rows or columns in a data frame
 - Cells in a DataFrames are accessed through bracket notation: 
   + **DataFrame[rows(s), column(s)]**
+- Let's start with a vector example
+
+```r
+x <- c("a", "b", "c", "d")
+
+x[1]
+x[2]
+x[1:2]
+x[c(4, 2, 1, 3)]
+```
+Subsetting data (2/3)
+========================================================
+- Now, let's apply it to our police data
 - To see the first row:
 
 ```r
@@ -281,11 +387,12 @@ View(police_killings[1,])
 ```r
 police_killings[,2]
 # or 
-View(police_killings[,2])
+View(police_killings[,2]) # This will NOT work, for complicated reasons we'll learn later
+View(as.data.frame(police_killings[,2]))
 ```
 - Don't forget the comma "," when subsetting a Dataframe!!!
   + Think in terms of rows and columns
-Subsetting data (2/2)
+Subsetting data (3/3)
 ========================================================
 - So, for instance, let's look at all police killings in New York state
   + To find how to code for New York state, let's run table() or summary() on that column
@@ -319,4 +426,16 @@ dim(ny_police_killings)
 ```r
 # Answer: 14
 ```
-### We will learn easier and much more flexible data munging soon (dplyr!)
+### We will learn easier and much more flexible data munging next week (dplyr!)
+Missing values
+========================================================
+- is.na() function evalues for missing values
+
+```r
+is.na(police_killings$county_bucket)
+
+sum(is.na(police_killings$county_bucket)) # sum() treats TRUE = 1, FALSE = 0
+
+# Now use that TRUE/FALSE vector to subset the DataFrame
+police_killings[is.na(police_killings$county_bucket),]
+```

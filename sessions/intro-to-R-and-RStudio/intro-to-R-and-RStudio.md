@@ -111,7 +111,7 @@ list.files()
 ```
 
 ```
-[1] "intro-to-R-and-RStudio-figure" "intro-to-R-and-RStudio.R"     
+[1] "intro-to-R-and-RStudio-figure" "intro-to-R-and-RStudio.pdf"   
 [3] "intro-to-R-and-RStudio.Rpres" 
 ```
 - Side note: dir() command does the same thing
@@ -121,7 +121,7 @@ dir()
 ```
 
 ```
-[1] "intro-to-R-and-RStudio-figure" "intro-to-R-and-RStudio.R"     
+[1] "intro-to-R-and-RStudio-figure" "intro-to-R-and-RStudio.pdf"   
 [3] "intro-to-R-and-RStudio.Rpres" 
 ```
 Important notes (1/2)
