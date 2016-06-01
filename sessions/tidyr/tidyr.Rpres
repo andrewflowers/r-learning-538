@@ -1,0 +1,213 @@
+Tidyr (with some dplyr and maybe lubridate)
+========================================================
+author: Andrew Flowers
+date: Wed., June 1, 2016
+autosize: true
+font-family: 'Helvetica'
+autosize: TRUE
+
+Goals for R Learning Group
+========================================================
+
+- Hands-on 
+- Complete beginners welcome
+- No dumb questions
+- 1 hour or less
+- Gradually learn more R
+
+Outline for today's session
+========================================================
+- First, install EDAWR package **from GitHub**
+  - Type this: devtools::install_github("rstudio/EDAWR") 
+- Introduction to tidyr
+  - Why use tidyr? What is "tidy data?"
+  - gather()
+  - spread()
+  - separate()
+  - unite()
+  - Hands-on problem
+- Joining data with dplyr
+  - left_join() 
+  - right_join()
+  - inner_join() 
+  - full_join()
+  - Filtering joins
+  - Hands-on problem
+- Lubridate
+ - ymd()/mdy()/dmy()
+ - year()/month()/day()
+
+Why use tidyr? What is tidy data?
+========================================================
+- tidyr is great because:
+  + It's a powerful tool to **reshape** your data
+  + It's integral to using ggplot2 for making charts
+- What is "Tidy Data?"
+  + The idea structure to work well with R
+  + Each variable has its own column
+  + Each row contains a single observations
+  + **Read Hadley Wickham's paper "Tidy Data"**
+
+Install dplyr and tidyr
+========================================================
+- Let's load dplyr and tidyr
+- To install an R package: 
+  + Use install.packages() command **with package name in quotes**
+```{r, eval=F}
+install.packages("tidyr")
+```
+- To load an R package: 
+  + Use require() or library() command **don't need to put the package name in quotes, but you can**
+```{r, }
+require("tidyr")
+# or
+library("tidyr")
+```
+
+gather()
+========================================================
+#### What does gather do?
+- It moves data from wide --> long
+- Like the "melt" function from the package reshape2
+- Goes from rectangular format to a key-value format
+
+#### Let's use the toy data set "cases"
+```{r, eval=TRUE}
+library(tidyr)
+library(dplyr)
+library(EDAWR)
+cases
+```
+#### What's not tidy about this data?
+- The country variable is on each row, not its own column; so let's gather it into key-value pairs
+- **gather( [dataset], [key-column], [value-column], [columns-to-gather])**
+```{r, eval=FALSE}
+# Without pipes
+gather(cases, country, year, 2:4)
+
+# Or with pipes
+cases %>% gather(country, year, 2:4)   
+```
+spread()
+========================================================
+#### What does spread do?
+- It moves data from long --> wide
+- Like the "cast" function from the package reshape2
+- Goes from a key-value format to rectangular format
+
+#### Let's use the toy data set "pollution"
+```{r, eval=TRUE}
+pollution
+```
+#### What if you want multiple columns for a variable?
+- Let's try this with the size variable. 
+- **spread( [dataset], [key-column], [value-column])**
+```{r, eval=FALSE}
+# Without pipes
+spread(pollution, size, amount)
+
+# Or with pipes
+pollution %>% spread(size, amount)
+```
+separate()
+========================================================
+#### What does spread do?
+- Splits a single column into multiple columns
+
+#### Let's use the toy data set "storms"
+```{r, eval=TRUE}
+storms
+```
+#### What if you want to split date to multiple columns?
+- **separate( [dataset], [column-to-separate], [new-column-names-IN-QUOTES], sep=[separator])**
+```{r, eval=FALSE}
+# Without pipes
+separate(storms, date, c("year", "month", "day"), sep = "-")
+
+# Saved, with pipes
+storms2 <- storms %>% separate(date, c("year", "month", "day"), sep = "-")
+```
+unite()
+========================================================
+#### What does unite do?
+- Unites multiple columns into a single column
+
+#### Let's use our new data set "storms2"
+```{r, eval=TRUE}
+storms2 <- storms %>% separate(date, c("year", "month", "day"), sep = "-")
+storms2
+```
+#### What if you want to create one date column?
+- **unite( [dataset], [new-column-name-IN-QUOTES], [columns-to-unite], sep=[separator])**
+```{r, eval=FALSE}
+# Without pipes
+unite(storms2, "date", year, month, day, sep = "/")
+
+# Or with pipes
+storms2 %>% unite("date", year, month, day, sep = "/")
+```
+
+left_join()
+========================================================
+#### Need to join two data sets?
+- Like SQL, dplyr offers several join functions
+- left_join() joins two data sets, according to the left data set
+
+### Let's use the toy data sets songs and artists
+```{r, eval=TRUE}
+songs
+artists
+```
+#### How left_join works:
+- **left_join( [dataset1], [dataset2], by=[column-or-columns-to-join-by])**
+```{r, eval=FALSE}
+left_join(songs, artists, by = "name")
+
+left_join(artists, songs, by = "name")
+```
+right_join()
+========================================================
+### right_join() is just the compliment of left_join()
+```{r, eval=TRUE}
+songs
+artists
+```
+#### How right_join works:
+- **right_join( [dataset1], [dataset2], by=[column-or-columns-to-join-by])**
+```{r, eval=FALSE}
+right_join(songs, artists, by = "name")
+
+right_join(artists, songs, by = "name")
+```
+inner_join() and full_join()
+========================================================
+- full_join() adds all rows, regardless of matching, including NA's
+- inner_join() only joins rows that match
+```{r, eval=TRUE}
+songs
+artists
+```
+#### They both work similarly:
+- **inner_join( [dataset1], [dataset1], by=[column-or-columns-to-join-by])**
+```{r, eval=FALSE}
+inner_join(songs, artists, by = "name")
+
+full_join(artists, songs, by = "name")
+```
+
+semi_join() and anti_join()
+========================================================
+### semi_join() and anti_join() don't join data, they filter it
+- semi_join() returns rows that matched
+- anti_join() returns rows that DID NOT match
+```{r, eval=TRUE}
+songs
+artists
+```
+#### They both work similarly:
+- **inner_join( [dataset1], [dataset1], by=[column-or-columns-to-join-by])**
+```{r, eval=FALSE}
+semi_join(songs, artists, by = "name")
+
+anti_join(artists, songs, by = "name")
+```
