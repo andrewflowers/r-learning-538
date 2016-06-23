@@ -1,0 +1,278 @@
+Functions and Control Structures
+========================================================
+author: Andrew Flowers
+date: Thurs., June 23, 2016
+autosize: true
+font-family: 'Helvetica'
+autosize: TRUE
+
+Goals for R Learning Group
+========================================================
+
+- Hands-on 
+- Complete beginners welcome
+- No dumb questions
+- 1 hour or less
+- Gradually learn more R
+
+Outline for today's session
+========================================================
+- Functions
+  - Function basics
+  - Default arguments
+  - Return values
+- Control structures
+  - if(), else, ifelse()
+  - for() loops
+  - while() loops
+- Apply functions
+  - lapply()
+  - sapply()
+
+
+Function basics
+========================================================
+Functions are incredibly important
+- If you find yourself copy and pasting a lot of code -- **WRITE A FUNCTION**
+Write a function using **function()** 
+- A function doesn't have to have an argument
+```{r, eval = TRUE}
+double_num <- function(num) { num * 2 }
+
+double_num(269)
+```
+- But most functions do have arguments
+  + Arguments are inputs the user may explictly set
+```{r, eval = TRUE}
+print_name <- function(your_name) {
+  print(your_name)
+}
+
+print_name("Andrew Flowers")
+```
+
+Default arguments
+========================================================
+You can specify default argumetns for a function
+ + That way you don't have to specify that argument ever time
+
+```{r, eval = TRUE}
+article_details <- function(title, length = 1500) {
+  print(
+    paste0(
+      "The article ", title, " will be ", length, " words long."
+      )
+    )
+}
+
+article_details("Clinton Wins The White House")
+article_details("OMFG, Trump Won The Election", 2000)
+
+```
+
+Return values
+========================================================
+You may want to return a specific value and assign it to a variable
+ + Use the **return()** function
+
+```{r, eval = TRUE}
+retirement_date <- function(your_age, retirement_age = 67) {
+  year_to_retire <- (retirement_age - your_age) + 2016
+  return(year_to_retire)
+}
+
+retirement_date(30)
+```
+- You can write out the arguments names
+ + But it's not required
+ + R functions match to arguments **positionally**, or by name
+```{r, eval = TRUE}
+retirement_date(your_age = 30, retirement_age = 77)
+
+retirement_date(30, 57)
+
+retirement_date(retirement_age = 57, your_age = 30)
+
+# Use args(retirement_date) to see arguments
+```
+
+Control structures: if() and else
+========================================================
+Control structures allow you to control the flow of execution
+- if() and else are the building blocks
+- **if ( [some condition] ) { [do if TRUE] } else { [do if FALSE] }**
+```{r, eval = TRUE}
+if (2 < 1) { 
+  print("Never print this")
+}
+
+if (2 > 1) { 
+  print("Always print this")
+}
+
+name <-  "Andrew"
+
+if (name == "Andrew") { 
+  print("That's me!")
+} else {
+  print("Whoa, that's not me.")
+}
+
+ # You can chain togethter mutliple if()/else() functions
+name <- "Barack Obama"
+if (name == "Andrew") { 
+  print("That's me.")
+} else if (name == "Anna"){
+  print("That's my wife.")
+} else if (name == "Vivian") {
+  print("That's my daughter.")
+} else {
+  print("Oops!")
+}
+```
+
+Control structures: ifelse()
+========================================================
+ifelse() is a nice function that combines these two control structures into one
+- **ifelse ( [if condition], [do if TRUE], [do if FALSE] )**
+```{r, eval = TRUE}
+library(lubridate)
+todays_date <- ymd("2016/6/23")
+
+ifelse( todays_date < ymd("2016/7/4"), "July 4th hasn't happened yet", "July 4th has passed")
+
+# Check out this data set
+# mtcars
+library(dplyr)
+
+# Useful using ifelse() with mutate() to create new variables
+mtcars %>% 
+  mutate(good_mpg = ifelse (mpg >= 30, TRUE, FALSE)) %>% 
+  filter(good_mpg)
+
+```
+
+Control structures: for() loops (Part 1)
+========================================================
+for() loops are a crucial part of programming
+- **for ( [element] in [sequence] ) { [do something] }**
+```{r, eval = TRUE}
+for (i in 1:10){
+  print(i)
+}
+
+# Let's find the max value for each car variable
+for (col in 1:ncol(mtcars)){ # Could use seq_along(mtcars) instead
+  print(max(mtcars[, col]))
+}
+```
+
+Control structures: for() loops (Part 2)
+========================================================
+for() loops are flexible
+- It will automatically iterate over each item in a vector
+```{r, eval = FALSE}
+letters
+
+for (letter in letters){
+  print(letter)
+}
+
+family <- c("Andrew", "Anna", "Vivian")
+
+for (person in family){ 
+  print(person)
+}
+```
+for() loops can be nested
+- WARNING: this can slow your code down a lot
+```{r, eval = TRUE}
+
+x <- matrix(1:6, 2, 3)
+x
+
+for(i in seq_len(nrow(x))) {
+  for(j in seq_len(ncol(x))) {
+    print(x[i, j])
+  }
+}
+```
+
+Control structures: while() loops
+========================================================
+while() loops are used much less often
+- **while ( [condition is TRUE] ) { [continue doing something] }**
+```{r, eval = TRUE}
+count <- 0
+
+while (count < 10) {
+  print(count)
+  count <- count + 1
+}
+
+```
+- WARNING: these can potentially result in infinite loops
+
+The apply() function family
+========================================================
+These are extremely useful functions for **looping**
+ + Great for an interactive setting
+ + Avoid the curl braces of for() and while() loops
+ + Computationally more efficient
+ 
+There are five main "apply" functions (we'll focus on first two):
+- lapply(): Loop over a list and evaluate a function on each element
+- sapply(): Same as lapply but try to simplify the result
+- apply(): Apply a function over the margins of an array
+- tapply(): Apply a function over subsets of a vector
+- mapply(): Multivariate version of lapply
+
+lapply() -- Part 1
+========================================================
+Workhouse function
+ - **applies** a function to each element of a **list**
+ - Always returns a list
+ 
+Structure of function:
+- **lapply ( [list to loop through], [function], [other arguments ... ] )**
+```{r, eval = TRUE}
+x <- list(a = 1:5, b = rnorm(10))
+x
+
+lapply(x, mean)
+
+# ASSIGNMENT: use lapply() to find mean of each variable in mtcars
+```
+
+lapply() -- Part 2
+========================================================
+Can also pass other arguments for function
+```{r, eval = FALSE}
+?runif
+x <- 1:4
+lapply(x, runif)
+lapply(x, runif, min = 0, max = 10)
+```
+Can use anonymous functions
+ - You write the function on the spot
+```{r, eval = TRUE}
+lapply(mtcars, function(var) { var[2] })
+
+lapply(mtcars, function(var) { c(mean(var), sd(var)) })
+
+```
+
+sapply() 
+========================================================
+Variant of lapply(), tries to simplify the results
+Sometimes you don't want a list to be returned
+```{r, eval = TRUE}
+x <- list(a = 1:4, b = rnorm(10), c = rnorm(20, 1), d = rnorm(100, 5))
+
+lapply(x, mean)
+typeof(lapply(x, mean))
+
+sapply(x, mean)
+typeof(sapply(x, mean))
+
+```
